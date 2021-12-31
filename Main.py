@@ -38,7 +38,7 @@ def get_jewish_name_data():#->pd.DataFrame
           
             first_name = without_and[0].split()
             first_name = [first_name[indx][0] + first_name[indx][1:].lower() for indx in range(len(first_name))]
-            
+
             #now seperate the joint spouse names
             if len(without_and) == 2:
                 
@@ -156,36 +156,21 @@ def put_together_all_data(type = "trigrams"):
     nj_df = get_non_jewish_names()
     print(j_df)
     print(nj_df)
-    """
-    total_jewish = []
 
-    for name in j_df.itertuples():
-        total_jewish.append((extract_features(name,type), "JEWISH"))
 
-    total_not_jewish =[]
-    for name in j_df.itertuples():
-        total_not_jewish.append((extract_features(name, type), "NOT_JEWISH"))
-
-    train_part_j = len(total_jewish)//4 * 3
-    train_part_nj = len(total_not_jewish)//4 * 3
-
-    train_data = np.array(total_jewish[:train_part_j]+ total_not_jewish[:train_part_nj])
-    test_data = np.array(total_jewish[train_part_j:] + total_not_jewish[train_part_nj:])
-
-    np.random.shuffle(train_data)
-    np.random.shuffle(test_data)
-    """
-
-    #for name in j_df.itertuples():
-        #print(name[1])
     all_names= ([(name, "JEWISH") for name in j_df.itertuples()]+[(name,"NOT_JEWISH") for name in nj_df.itertuples()] )
 
+    random.shuffle(all_names)
 
+    feature_sets = [(extract_features(name, type), gender) for name, gender in all_names]
+
+    size = (len(feature_sets)//5) *4
+    train_data, test_data = feature_sets[:size], feature_sets[size:]
     # #df = pd.DataFrame()
     # df = pd.concat([j_df, nj_df],ignore_index = True)
     # df = df.sample(frac = 1).reset_index(drop=True) #shuffle the dataset
     # print(df)
-    #return (train_data,test_data)
+    return (train_data,test_data)
 
 put_together_all_data()
 
@@ -196,15 +181,19 @@ def train_model(train_data, test_data):
 
 def main():
     train_data, test_data = put_together_all_data()
+    print("Model with the features as trigrams")
     train_model(train_data,test_data)
 
     train_data, test_data = put_together_all_data(type = "bigrams")
+    print("Model with the features as bigrams")
     train_model(train_data, test_data)
 
     train_data, test_data = put_together_all_data(type = "four_grams")
+    print("Model with the features as four grams")
     train_model(train_data, test_data)
 
     train_data, test_data = put_together_all_data(type = "unigrams")
+    print("Model with the features as unigrams")
     train_model(train_data, test_data)
 
 main()
