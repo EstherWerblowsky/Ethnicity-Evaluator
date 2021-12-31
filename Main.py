@@ -1,11 +1,20 @@
 import random
+from nltk.util import ngrams
+from nltk.classify import apply_features
+import nltk.classify.util
+from nltk.classify.api import ClassifierI
+from nltk.classify import NaiveBayesClassifier
+from nltk.metrics import ConfusionMatrix
+from nltk.metrics.scores import accuracy, precision
+import numpy as np
+import re
+import urllib.request
+import pandas as pd
 
 
 #https://www.ou.org/benefactor/
 
-import re
-import urllib.request
-import pandas as pd
+
 
 def get_jewish_name_data():#->pd.DataFrame
 
@@ -130,13 +139,6 @@ def get_non_jewish_names():
 #get_non_jewish_names()
 
 
-from nltk.util import ngrams
-from nltk.classify import apply_features
-import nltk.classify.util
-from nltk.classify.api import ClassifierI
-from nltk.classify import NaiveBayesClassifier
-import numpy as np
-
 def extract_features(name, type):
     trigrams= list(ngrams(name,3,left_pad_symbol="<s>",right_pad_symbol="<s>"))
     bigrams= list(ngrams(name,2,left_pad_symbol="<s>",right_pad_symbol="<s>"))
@@ -146,6 +148,14 @@ def extract_features(name, type):
     return dict([(ngram, True) for ngram in type])
 
 
+def extract_features_more(name):
+    name_list = name[1].split()
+    last_suffix = name_list[-1][-3:]
+    first_suffix = name_list[0][-3:]
+    first_prefix= name_list[0][:3]
+    last_prefix = name_list[-1][:3]
+
+    return {"last_suffix": last_suffix, "first_suffix": first_suffix, "first_prefix": first_prefix, "last_prefix":last_prefix}
 
 # process data-
 #             a. label it
@@ -154,30 +164,48 @@ def put_together_all_data(type = "trigrams"):
 
     j_df = get_jewish_name_data()
     nj_df = get_non_jewish_names()
-    print(j_df)
-    print(nj_df)
+ 
 
 
-    all_names= ([(name, "JEWISH") for name in j_df.itertuples()]+[(name,"NOT_JEWISH") for name in nj_df.itertuples()] )
+    all_names= ([(name[1], "JEWISH") for name in j_df.itertuples()]+[(name,"NOT_JEWISH") for name in nj_df.itertuples()] )
 
     random.shuffle(all_names)
 
-    feature_sets = [(extract_features(name, type), gender) for name, gender in all_names]
+    feature_sets = [(extract_features(name, type), identity) for name, identity in all_names]
 
     size = (len(feature_sets)//5) *4
     train_data, test_data = feature_sets[:size], feature_sets[size:]
-    # #df = pd.DataFrame()
-    # df = pd.concat([j_df, nj_df],ignore_index = True)
-    # df = df.sample(frac = 1).reset_index(drop=True) #shuffle the dataset
-    # print(df)
+
     return (train_data,test_data)
 
-put_together_all_data()
+
+#put_together_all_data()
+def put_all_together_more():
+    j_df = get_jewish_name_data()
+    nj_df = get_non_jewish_names()
+
+
+    all_names= ([(name[1], "JEWISH") for name in j_df.itertuples()]+[(name,"NOT_JEWISH") for name in nj_df.itertuples()] )
+
+    random.shuffle(all_names)
+
+    feature_sets = [(extract_features_more(name), identity) for name, identity in all_names]
+
+    size = (len(feature_sets)//5) *4
+    train_data, test_data = feature_sets[:size], feature_sets[size:]
+
+    return (train_data,test_data)
 
 def train_model(train_data, test_data):
     classifier = NaiveBayesClassifier.train(train_data)
+    pred_labels  = [classifier.classify(features) for features, label in test_data]
     accuracy = nltk.classify.util.accuracy(classifier, test_data)
-    print(accuracy)
+    test_labels = [iden for features, iden in test_data]
+    cm = ConfusionMatrix(pred_labels,test_labels)
+    prec = precision(set(pred_labels), set(test_labels))
+    print("Accuracy is: ",accuracy)
+    print("Confusion Matrix is", cm)
+    print("Precision is: ", prec )
 
 def main():
     train_data, test_data = put_together_all_data()
@@ -196,27 +224,9 @@ def main():
     print("Model with the features as unigrams")
     train_model(train_data, test_data)
 
+    new_train, new_test = put_all_together_more()
+    print("other features set")
+    train_model(new_train, new_test)
+
 main()
-
-"""
-        1. create function that returns a dictionary of generated features
-                a. can use kitchen sink method- throw features at the model
-                     - some to think about, prefix of last name(first three letters), sufix of last name(last three letters), first name,
-                     - 
-                
-        2. process data-
-            a. label it
-            b. random.shuffle() it
-        
-        3. create an array of the features of the data using the feature extractor
-                - use nltk.classify.apply_features
-        4. split into train and test
-        5. train a Naive Bayes classifier (nltk? scikit learn?) on training set
- 
-        
-        
-"""
-#make features from names- ngrams..? trigrams..?
-
-#build classification model that predicts whether a name is jewish or not
 
