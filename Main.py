@@ -10,7 +10,8 @@ import numpy as np
 import re
 import urllib.request
 import pandas as pd
-
+import pickle as pkl
+#import flask
 
 #https://www.ou.org/benefactor/
 
@@ -206,8 +207,10 @@ def train_model(train_data, test_data):
     print("Accuracy is: ",accuracy)
     print("Confusion Matrix is", cm)
     print("Precision is: ", prec )
+    return classifier
 
 def main():
+    """
     train_data, test_data = put_together_all_data()
     print("Model with the features as trigrams")
     train_model(train_data,test_data)
@@ -223,10 +226,12 @@ def main():
     train_data, test_data = put_together_all_data(type = "unigrams")
     print("Model with the features as unigrams")
     train_model(train_data, test_data)
-
+    """
     new_train, new_test = put_all_together_more()
     print("other features set")
-    train_model(new_train, new_test)
-
+    classifier = train_model(new_train, new_test)
+    with open('classifier.pkl','wb') as myfile:
+        pkl.dump(classifier ,myfile)
+    myfile.close()
 main()
 
