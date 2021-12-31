@@ -23,24 +23,25 @@ def get_jewish_name_data():#->pd.DataFrame
         for name in found:
             #print(name)
             #remove the extra prefix and suffixes from the names
-            delim = ' Z"L', 'Z"l', ' A"H', 'Dr. ', 'Drs. ', 'Rabbi ', 'Mr. ', 'Mrs. ', 'Prof. '
+            delim = ' Z"L', 'Z"l', ' A"H', 'Dr. ', 'Drs. ', 'Rabbi ', 'Mr. ', 'Mrs. ', 'Prof. ', 'RABBI ', 'DR. ', 'MRS. ', 'MR. ', 'PROF. ', 'DR. ', 'DRS. '
             pat = '|'.join(map(re.escape, delim))
             without_extras = re.split(pat, name)
             #print(without_extras)
-            new_name = "".join(without_extras).strip()
-            #print(new_name)
+            new_name = "".join(without_extras)#.strip()
 
             #eliminate dealing with organization and memorial fund dontations
-            if "In Memory of" in new_name or "Capital" in new_name or "FAMILY" in new_name or "Family" in new_name or "Foundation" in new_name or "in honor of" in new_name or " Fund" in new_name:
+            if "In Memory of" in new_name or 'IN MEMORY OF' in new_name or 'CAPITAL' in new_name or "Capital" in new_name or "FAMILY" in new_name or "Family" in new_name or "Foundation" in new_name or 'FOUNDATION' in new_name or "in honor of" in new_name or 'IN HONOR OF' in new_name or " Fund" in new_name or ' FUND' in new_name:
                 continue
 
             #get rid of the and
-            without_and = re.split(' and |and ', new_name)
-            #print(without_and)
+            without_and = re.split(' and |and |AND | AND ', new_name)
+          
             first_name = without_and[0].split()
             first_name = [first_name[indx][0] + first_name[indx][1:].lower() for indx in range(len(first_name))]
+            
             #now seperate the joint spouse names
             if len(without_and) == 2:
+                
                 second_name = without_and[1].split()
 
                 if 2<=len(second_name)<=3:
@@ -71,7 +72,7 @@ def get_jewish_name_data():#->pd.DataFrame
                         new_df = pd.DataFrame([name1, name2])
 
                     df_jewish_names = pd.concat([new_df, df_jewish_names], ignore_index = True)
-                    #print(new_df)
+                    
 
             elif len(without_and) ==1:
                 update = first_name
@@ -120,7 +121,7 @@ def get_non_jewish_names():
                 cur+=1
             last = "".join(last_split)
             first = "".join(first_split)
-            df= df.append([first.strip() + " "+ last.strip()])
+            df= df.append([first.strip() + " "+ last.strip()], ignore_index = True)
 
         #df["label"] = "NOT_JEWISH"
     return df
@@ -175,8 +176,8 @@ def put_together_all_data(type = "trigrams"):
     np.random.shuffle(test_data)
     """
 
-    for name in j_df.itertuples():
-        print(name[1])
+    #for name in j_df.itertuples():
+        #print(name[1])
     all_names= ([(name, "JEWISH") for name in j_df.itertuples()]+[(name,"NOT_JEWISH") for name in nj_df.itertuples()] )
 
 
@@ -184,7 +185,7 @@ def put_together_all_data(type = "trigrams"):
     # df = pd.concat([j_df, nj_df],ignore_index = True)
     # df = df.sample(frac = 1).reset_index(drop=True) #shuffle the dataset
     # print(df)
-    return (train_data,test_data)
+    #return (train_data,test_data)
 
 put_together_all_data()
 
