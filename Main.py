@@ -1,35 +1,3 @@
-#scrape data from online- with jewish names
-        ##use regex's?
-        ##how to make sure not getting organizations
-        ##or sort out afterwards
-        ##need to seperate names by grabbing each first name of couple and then adding it to last name as seperate entries
-#extract_regex = re.compile(r'<li>[DR\.]?[RABBI]?[DRS\.]?([A-Za-z \.]*?)?[A"H]?[Z"L]?([A-Za-z \.]*?)?[A"H]?[Z"L]?</li>')
-#extract_regex = re.compile(r'<li>[DR\.|RABBI|DRS\.|MR\.]?([A-Za-z \.]*?)[A"H|Z"L]?[MRS.]?([A-Za-z \.]*?)[A"H|Z"L]?</li>')
-
-##now need to clean data::
-# get rid of titles
-# get rid of Z"L
-# split husband and wife names
-# get rid of organizations listed
-
-""""
-issues with scraped data:
-- three names- one person: eg RUTH BRANDT SPITZER
-- What do we do with someone's maiden num + married name
-- what to do with this..?STUART KARON AND DR. JODI WENGER
-- count for when it only says mr and mrs MALE NAME LAST NAME:eg MR. AND MRS. DAN GOLDISH
--MARILYN RABHAN SWEDARSKY AND DR. ROBERT SWEDARSKY
--Deal with paranthesis-? Mark (Moishe) Bane
-"""
-"""
-delimiters = "a", "...", "(c)"
->>> example = "stackoverflow (c) is awesome... isn't it?"
->>> regexPattern = '|'.join(map(re.escape, delimiters))
->>> regexPattern
-'a|\\.\\.\\.|\\(c\\)'
->>> re.split(regexPattern, example)
-
-"""
 import random
 
 
