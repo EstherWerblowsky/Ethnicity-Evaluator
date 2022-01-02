@@ -149,15 +149,17 @@ def extract_features(name, type):
     return dict([(ngram, True) for ngram in type])
 
 
-def extract_features_more(name):
-    name_list = name[1].split()
-    last_suffix = name_list[-1][-3:]
-    first_suffix = name_list[0][-3:]
-    first_prefix= name_list[0][:3]
-    last_prefix = name_list[-1][:3]
-
+def extract_features_more(name,type):
+    name_list = name.split()
+    #print(name_list)
+    last_suffix = name_list[-1][-type:]
+    first_suffix = name_list[0][-type:]
+    first_prefix= name_list[0][:type]
+    last_prefix = name_list[-1][:type]
+    
     return {"last_suffix": last_suffix, "first_suffix": first_suffix, "first_prefix": first_prefix, "last_prefix":last_prefix}
 
+#print(extract_features_more("Esther Werblowsky"))
 # process data-
 #             a. label it
 #             b. random.shuffle() it
@@ -168,12 +170,12 @@ def put_together_all_data(type = "trigrams"):
  
 
 
-    all_names= ([(name[1], "JEWISH") for name in j_df.itertuples()]+[(name,"NOT_JEWISH") for name in nj_df.itertuples()] )
-
+    all_names= ([(name[1], "JEWISH") for name in j_df.itertuples()]+[(name[1],"NOT_JEWISH") for name in nj_df.itertuples()] )
+    #print(all_names)
     random.shuffle(all_names)
 
     feature_sets = [(extract_features(name, type), identity) for name, identity in all_names]
-
+    #print(feature_sets)
     size = (len(feature_sets)//5) *4
     train_data, test_data = feature_sets[:size], feature_sets[size:]
 
@@ -181,17 +183,17 @@ def put_together_all_data(type = "trigrams"):
 
 
 #put_together_all_data()
-def put_all_together_more():
+def put_all_together_more(type = 3):
     j_df = get_jewish_name_data()
     nj_df = get_non_jewish_names()
 
 
-    all_names= ([(name[1], "JEWISH") for name in j_df.itertuples()]+[(name,"NOT_JEWISH") for name in nj_df.itertuples()] )
-
+    all_names= ([(name[1], "JEWISH") for name in j_df.itertuples()]+[(name[1],"NOT_JEWISH") for name in nj_df.itertuples()] )
+    #print(all_names)
     random.shuffle(all_names)
 
-    feature_sets = [(extract_features_more(name), identity) for name, identity in all_names]
-
+    feature_sets = [(extract_features_more(name, type), identity) for name, identity in all_names]
+    #print(feature_sets)
     size = (len(feature_sets)//5) *4
     train_data, test_data = feature_sets[:size], feature_sets[size:]
 
@@ -210,7 +212,6 @@ def train_model(train_data, test_data):
     return classifier
 
 def main():
-    """
     train_data, test_data = put_together_all_data()
     print("Model with the features as trigrams")
     train_model(train_data,test_data)
@@ -226,10 +227,24 @@ def main():
     train_data, test_data = put_together_all_data(type = "unigrams")
     print("Model with the features as unigrams")
     train_model(train_data, test_data)
-    """
+    
     new_train, new_test = put_all_together_more()
-    print("other features set")
+    print("suffix/prefix features set with three")
     classifier = train_model(new_train, new_test)
+    classifier.show_most_informative_features()
+
+
+    new_train, new_test = put_all_together_more(type =2)
+    print("suffix/prefix features set with two")
+    classifier = train_model(new_train, new_test)
+    classifier.show_most_informative_features()
+
+
+    new_train, new_test = put_all_together_more(type =4)
+    print("suffix/prefix features set with four")
+    classifier = train_model(new_train, new_test)
+    classifier.show_most_informative_features()
+
     with open('classifier.pkl','wb') as myfile:
         pkl.dump(classifier ,myfile)
     myfile.close()
