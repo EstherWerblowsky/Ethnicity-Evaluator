@@ -18,7 +18,9 @@ import pickle as pkl
 
 
 def get_jewish_name_data():#->pd.DataFrame
-
+    clean_file = open("jewish_names.txt","w")
+    clean_file.close()
+    output = open("jewish_names.txt", "a")
     df_jewish_names = pd.DataFrame()
 
     #regex to extract names from url
@@ -32,6 +34,7 @@ def get_jewish_name_data():#->pd.DataFrame
         found = re.findall(extract_regex, data)
         for name in found:
             #print(name)
+            #code modified from https://stackoverflow.com/questions/4998629/split-string-with-multiple-delimiters-in-python
             #remove the extra prefix and suffixes from the names
             delim = ' Z"L', 'Z"l', ' A"H', 'Dr. ', 'Drs. ', 'Rabbi ', 'Mr. ', 'Mrs. ', 'Prof. ', 'RABBI ', 'DR. ', 'MRS. ', 'MR. ', 'PROF. ', 'DR. ', 'DRS. '
             pat = '|'.join(map(re.escape, delim))
@@ -71,6 +74,7 @@ def get_jewish_name_data():#->pd.DataFrame
                     # if the wife's first name isn't present
                     #then just output the husbands name to the df
                     if not name1:
+                        output.write(name2 + "\n")
                         new_df = pd.DataFrame([name2])
 
                     else:
@@ -78,7 +82,8 @@ def get_jewish_name_data():#->pd.DataFrame
                         # check if the women's maiden name/different last name is present
                         if len(first_name) == 2:
                             name1 = first_name[0].strip() + " " + first_name[1].strip()
-
+                        output.write(name1+ "\n")
+                        output.write(name2+ "\n")
                         new_df = pd.DataFrame([name1, name2])
 
                     df_jewish_names = pd.concat([new_df, df_jewish_names], ignore_index = True)
@@ -90,17 +95,22 @@ def get_jewish_name_data():#->pd.DataFrame
                     string = update[0].strip()
                     for indx in range(1, len(update)):
                         string += (" "+ update[indx].strip())
+                    output.write(string + "\n")
                     new_df = pd.DataFrame([string])
                     df_jewish_names =pd.concat([new_df, df_jewish_names], ignore_index = True)
                     #print(new_df)
         #df_jewish_names['label'] = "JEWISH"
 
  #       print(df_jewish_names)
+    output.close()
     return df_jewish_names
 
 #get_jewish_name_data()
 #https://danesheriff.com/Residents
 def get_non_jewish_names():
+    clean_file = open("non_jewish_names.txt", 'w')
+    clean_file.close()
+    output = open("non_jewish_names.txt", "a")
     df = pd.DataFrame()
 
     # regex to extract names from url
@@ -131,16 +141,19 @@ def get_non_jewish_names():
                 cur+=1
             last = "".join(last_split)
             first = "".join(first_split)
-            df= df.append([first.strip() + " "+ last.strip()], ignore_index = True)
+            string = first.strip() + " "+ last.strip()
+            output.write(string+ "\n")
+            df= df.append([string], ignore_index = True)
 
         #df["label"] = "NOT_JEWISH"
+    output.close()
     return df
         #print(df)
 
 #get_non_jewish_names()
 
 
-def extract_features(name, type):
+def extract_features(name, type =3):
     trigrams= list(ngrams(name,3,left_pad_symbol="<s>",right_pad_symbol="<s>"))
     bigrams= list(ngrams(name,2,left_pad_symbol="<s>",right_pad_symbol="<s>"))
     four_grams= list(ngrams(name,4,left_pad_symbol="<s>",right_pad_symbol="<s>"))
@@ -206,32 +219,32 @@ def train_model(train_data, test_data):
     test_labels = [iden for features, iden in test_data]
     cm = ConfusionMatrix(pred_labels,test_labels)
     prec = precision(set(pred_labels), set(test_labels))
-    print("Accuracy is: ",accuracy)
-    print("Confusion Matrix is", cm)
-    print("Precision is: ", prec )
+    # print("Accuracy is: ",accuracy)
+    # print("Confusion Matrix is", cm)
+    # print("Precision is: ", prec )
     return classifier
 
 def main():
     train_data, test_data = put_together_all_data()
-    print("Model with the features as trigrams")
+    #print("Model with the features as trigrams")
     train_model(train_data,test_data)
 
     train_data, test_data = put_together_all_data(type = "bigrams")
-    print("Model with the features as bigrams")
+    #print("Model with the features as bigrams")
     train_model(train_data, test_data)
 
     train_data, test_data = put_together_all_data(type = "four_grams")
-    print("Model with the features as four grams")
+   #print("Model with the features as four grams")
     train_model(train_data, test_data)
 
     train_data, test_data = put_together_all_data(type = "unigrams")
-    print("Model with the features as unigrams")
+    #print("Model with the features as unigrams")
     train_model(train_data, test_data)
     
     new_train, new_test = put_all_together_more()
-    print("suffix/prefix features set with three")
+    #print("suffix/prefix features set with three")
     classifier = train_model(new_train, new_test)
-    classifier.show_most_informative_features()
+    #classifier.show_most_informative_features()
 
 
     new_train, new_test = put_all_together_more(type =2)
@@ -241,9 +254,9 @@ def main():
 
 
     new_train, new_test = put_all_together_more(type =4)
-    print("suffix/prefix features set with four")
+    #print("suffix/prefix features set with four")
     classifier = train_model(new_train, new_test)
-    classifier.show_most_informative_features()
+    #classifier.show_most_informative_features()
 
     with open('classifier.pkl','wb') as myfile:
         pkl.dump(classifier ,myfile)
