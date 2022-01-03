@@ -161,7 +161,9 @@ def extract_features(name, type =3):
 
     return dict([(ngram, True) for ngram in type])
 
-
+#this function uses a simpler feature extraction method
+#gets the prefix and suffix of first and last name
+#of length "type", default is 3
 def extract_features_more(name,type):
     name_list = name.split()
     #print(name_list)
@@ -196,6 +198,9 @@ def put_together_all_data(type = "trigrams"):
 
 
 #put_together_all_data()
+
+#this is the method that uses the simpler feature extraction
+#to create final dataset
 def put_all_together_more(type = 3):
     j_df = get_jewish_name_data()
     nj_df = get_non_jewish_names()
