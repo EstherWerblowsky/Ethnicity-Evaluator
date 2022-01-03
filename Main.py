@@ -43,9 +43,9 @@ def get_jewish_name_data():#->pd.DataFrame
             new_name = "".join(without_extras)#.strip()
 
             #eliminate dealing with organization and memorial fund dontations
-            if "In Memory of" in new_name or "PHILANTHROPIES" in new_name or "COMPANY" in new_name or "TRAVEL " in new_name or 'IN MEMORY OF' in new_name or 'CAPITAL' in new_name or "Capital" in new_name or "FAMILY" in new_name or "Family" in new_name or "Foundation" in new_name or 'FOUNDATION' in new_name or "in honor of" in new_name or 'IN HONOR OF' in new_name or " Fund" in new_name or ' FUND' in new_name:
+            if "In Memory of" in new_name or "JOURNEY" in new_name or "JEWISH" in new_name or "PHILANTHROPIES" in new_name or "COMPANY" in new_name or "TRAVEL " in new_name or 'IN MEMORY OF' in new_name or 'CAPITAL' in new_name or "Capital" in new_name or "FAMILY" in new_name or "Family" in new_name or "Foundation" in new_name or 'FOUNDATION' in new_name or "in honor of" in new_name or 'IN HONOR OF' in new_name or " Fund" in new_name or ' FUND' in new_name:
                 continue
-                
+
             #get rid of the and
             without_and = re.split(' and |and |AND | AND ', new_name)
           
