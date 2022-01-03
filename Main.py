@@ -43,7 +43,7 @@ def get_jewish_name_data():#->pd.DataFrame
             new_name = "".join(without_extras)#.strip()
 
             #eliminate dealing with organization and memorial fund dontations
-            if "In Memory of" in new_name or 'IN MEMORY OF' in new_name or 'CAPITAL' in new_name or "Capital" in new_name or "FAMILY" in new_name or "Family" in new_name or "Foundation" in new_name or 'FOUNDATION' in new_name or "in honor of" in new_name or 'IN HONOR OF' in new_name or " Fund" in new_name or ' FUND' in new_name:
+            if "In Memory of" in new_name or "PHILANTHROPIES" in new_name or 'IN MEMORY OF' in new_name or 'CAPITAL' in new_name or "Capital" in new_name or "FAMILY" in new_name or "Family" in new_name or "Foundation" in new_name or 'FOUNDATION' in new_name or "in honor of" in new_name or 'IN HONOR OF' in new_name or " Fund" in new_name or ' FUND' in new_name:
                 continue
 
             #get rid of the and
@@ -225,38 +225,38 @@ def train_model(train_data, test_data):
     return classifier
 
 def main():
-    train_data, test_data = put_together_all_data()
-    #print("Model with the features as trigrams")
-    train_model(train_data,test_data)
+    # train_data, test_data = put_together_all_data()
+    # #print("Model with the features as trigrams")
+    # train_model(train_data,test_data)
 
-    train_data, test_data = put_together_all_data(type = "bigrams")
-    #print("Model with the features as bigrams")
-    train_model(train_data, test_data)
+    # train_data, test_data = put_together_all_data(type = "bigrams")
+    # #print("Model with the features as bigrams")
+    # train_model(train_data, test_data)
 
-    train_data, test_data = put_together_all_data(type = "four_grams")
-   #print("Model with the features as four grams")
-    train_model(train_data, test_data)
+    # train_data, test_data = put_together_all_data(type = "four_grams")
+    # #print("Model with the features as four grams")
+    # train_model(train_data, test_data)
 
-    train_data, test_data = put_together_all_data(type = "unigrams")
-    #print("Model with the features as unigrams")
-    train_model(train_data, test_data)
+    # train_data, test_data = put_together_all_data(type = "unigrams")
+    # #print("Model with the features as unigrams")
+    # train_model(train_data, test_data)
     
-    new_train, new_test = put_all_together_more()
-    #print("suffix/prefix features set with three")
-    classifier = train_model(new_train, new_test)
-    #classifier.show_most_informative_features()
+    # new_train, new_test = put_all_together_more()
+    # #print("suffix/prefix features set with three")
+    # classifier = train_model(new_train, new_test)
+    # #classifier.show_most_informative_features()
 
 
-    new_train, new_test = put_all_together_more(type =2)
-    print("suffix/prefix features set with two")
-    classifier = train_model(new_train, new_test)
-    classifier.show_most_informative_features()
+    # new_train, new_test = put_all_together_more(type =2)
+    # print("suffix/prefix features set with two")
+    # classifier = train_model(new_train, new_test)
+    # classifier.show_most_informative_features()
 
 
     new_train, new_test = put_all_together_more(type =4)
     #print("suffix/prefix features set with four")
     classifier = train_model(new_train, new_test)
-    #classifier.show_most_informative_features()
+    # classifier.show_most_informative_features()
 
     with open('classifier.pkl','wb') as myfile:
         pkl.dump(classifier ,myfile)
